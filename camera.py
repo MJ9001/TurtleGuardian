@@ -13,12 +13,15 @@ rawCapture = PiRGBArray(camera, size=(640, 480))
 # allow the cui8iamera to warmup
 class Camera:
     def __init__(self):
+        x = threading.Thread(target=runCamera, args=(1,))
+        x.start()
         
         
-    def isMovement():
+    def isMovement(self):
+        pass
         
     # capture frames from the camera
-    def runCamera:
+    def runCamera(self):
         for frame in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
             # grab the raw NumPy array representing the image, then initialize the timestamp
             # and occupied/unoccupied text
