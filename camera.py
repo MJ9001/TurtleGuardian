@@ -6,14 +6,8 @@ import cv2
 import threading 
 import argparse
 import imutils
+import netwrok
 # allow the cui8iamera to warmup
-<<<<<<< HEAD
-class Camera(object):
-    def __init__(self):
-        x = threading.Thread(target=runCamera, args=(1,))
-        x.start()
-        
-=======
 class Camera:
     # initialize the camera and grab a reference to the raw camera capture
     cam = PiCamera()
@@ -23,7 +17,7 @@ class Camera:
     finish = False
     imageReading = False
     runDone = False
-    
+    network = None
     def getImage(self):
         while True:
             self.imageReading = True
@@ -52,7 +46,6 @@ class Camera:
 
     def exit(self):
         self.finish = True
->>>>>>> 453a124a3442ea842cfd2acff588179d1fa4a809
         
     def isMovement(self):
         pass
@@ -60,11 +53,21 @@ class Camera:
     # capture frames from the camera
     def runCamera(self):
         self.runDone = False
+        fgbg = cv2.createBackgroundSubtractorMOG2()
         for frame in self.cam.capture_continuous(self.rawCapture, format="bgr", use_video_port=True):
             # grab the raw NumPy array representing the image, then initialize the timestamp
             # and occupied/unoccupied text
-            image = frame.array
-            self.imgGet = image
+            mask = fgbg.apply(image)
+            
+            cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+                cv2.CHAIN_APPROX_SIMPLE)
+            cnts = imutils.grab_contours(cnts)
+            network.insert("I found {} changes".format(len(cnts)))
+            for c in cnts:
+                cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+            # show the frame
+            cv2.imshow("Frame", image)
+            key = cv2.waitKey(1) & 0xFF
             # clear the stream in preparation for the next frame
             self.rawCapture.truncate(0)
             if self.finish or self.imageReading:
@@ -72,7 +75,8 @@ class Camera:
                 self.runDone = True
                 break
          
-    def __init__(self):
+    def __init__(self, net):
+        self.network = net
         x = threading.Thread(target=self.runCamera)
         x.start()
         print("Camera module initalized")
