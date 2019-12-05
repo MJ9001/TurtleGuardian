@@ -11,7 +11,7 @@ cam.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
  
 # allow the cui8iamera to warmup
-class Camera:
+class Camera(object):
     def __init__(self):
         x = threading.Thread(target=runCamera, args=(1,))
         x.start()
